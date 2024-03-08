@@ -1,0 +1,45 @@
+2024-03-08 11:04:14,822 INFO    MainThread:9588 [wandb_setup.py:_flush():76] Current SDK version is 0.16.4
+2024-03-08 11:04:14,822 INFO    MainThread:9588 [wandb_setup.py:_flush():76] Configure stats pid to 9588
+2024-03-08 11:04:14,822 INFO    MainThread:9588 [wandb_setup.py:_flush():76] Loading settings from C:\Users\thoma\.config\wandb\settings
+2024-03-08 11:04:14,822 INFO    MainThread:9588 [wandb_setup.py:_flush():76] Loading settings from c:\Users\thoma\OneDrive - Delft University of Technology\Documenten\UNI\Bayesian\Assignment 2\MiniGPT\wandb\settings
+2024-03-08 11:04:14,822 INFO    MainThread:9588 [wandb_setup.py:_flush():76] Loading settings from environment variables: {}
+2024-03-08 11:04:14,822 INFO    MainThread:9588 [wandb_setup.py:_flush():76] Applying setup settings: {'_disable_service': False}
+2024-03-08 11:04:14,823 INFO    MainThread:9588 [wandb_setup.py:_flush():76] Inferring run settings from compute environment: {'program': '<python with no main file>'}
+2024-03-08 11:04:14,823 ERROR   MainThread:9588 [wandb_setup.py:_flush():76] error
+Traceback (most recent call last):
+  File "c:\Users\thoma\anaconda3\envs\Bayesian_project\Lib\site-packages\wandb\sdk\wandb_init.py", line 1172, in init
+    wi.setup(kwargs)
+  File "c:\Users\thoma\anaconda3\envs\Bayesian_project\Lib\site-packages\wandb\sdk\wandb_init.py", line 306, in setup
+    wandb_login._login(
+  File "c:\Users\thoma\anaconda3\envs\Bayesian_project\Lib\site-packages\wandb\sdk\wandb_login.py", line 317, in _login
+    wlogin.prompt_api_key()
+  File "c:\Users\thoma\anaconda3\envs\Bayesian_project\Lib\site-packages\wandb\sdk\wandb_login.py", line 240, in prompt_api_key
+    key, status = self._prompt_api_key()
+                  ^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\thoma\anaconda3\envs\Bayesian_project\Lib\site-packages\wandb\sdk\wandb_login.py", line 220, in _prompt_api_key
+    key = apikey.prompt_api_key(
+          ^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\thoma\anaconda3\envs\Bayesian_project\Lib\site-packages\wandb\sdk\lib\apikey.py", line 151, in prompt_api_key
+    key = input_callback(api_ask).strip()
+          ^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\thoma\anaconda3\envs\Bayesian_project\Lib\site-packages\click\termui.py", line 164, in prompt
+    value = prompt_func(prompt)
+            ^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\thoma\anaconda3\envs\Bayesian_project\Lib\site-packages\click\termui.py", line 147, in prompt_func
+    raise Abort() from None
+click.exceptions.Abort
+2024-03-08 11:04:14,824 INFO    MainThread:9588 [wandb_setup.py:_flush():76] Applying login settings: {'anonymous': '3cfa8ad4071af79aa5f7a00bb091ba6b46ac71e1'}
+2024-03-08 11:04:14,825 INFO    MainThread:9588 [wandb_setup.py:_flush():76] Applying login settings: {'api_key': '***REDACTED***'}
+2024-03-08 11:04:14,825 INFO    MainThread:9588 [wandb_init.py:_log_setup():526] Logging user logs to c:\Users\thoma\OneDrive - Delft University of Technology\Documenten\UNI\Bayesian\Assignment 2\MiniGPT\wandb\run-20240308_110414-uu2r0jaf\logs\debug.log
+2024-03-08 11:04:14,825 INFO    MainThread:9588 [wandb_init.py:_log_setup():527] Logging internal logs to c:\Users\thoma\OneDrive - Delft University of Technology\Documenten\UNI\Bayesian\Assignment 2\MiniGPT\wandb\run-20240308_110414-uu2r0jaf\logs\debug-internal.log
+2024-03-08 11:04:14,825 INFO    MainThread:9588 [wandb_init.py:init():566] calling init triggers
+2024-03-08 11:04:14,825 INFO    MainThread:9588 [wandb_init.py:init():573] wandb.init called with sweep_config: {}
+config: {'learning_rate': 0.001}
+2024-03-08 11:04:14,825 INFO    MainThread:9588 [wandb_init.py:init():591] re-initializing run, found existing run on stack: 5pnrshs4
+2024-03-08 11:04:14,827 INFO    MainThread:9588 [wandb_run.py:_finish():1970] finishing run minigpttu/mini-GPT/5pnrshs4
+2024-03-08 11:04:14,828 ERROR   MainThread:9588 [jupyter.py:save_history():437] Run pip install nbformat to save notebook history
+2024-03-08 11:04:14,828 INFO    MainThread:9588 [jupyter.py:save_ipynb():373] not saving jupyter notebook
+2024-03-08 11:04:14,828 INFO    MainThread:9588 [wandb_init.py:_jupyter_teardown():454] cleaning up jupyter logic
+2024-03-08 11:04:14,828 INFO    MainThread:9588 [wandb_run.py:_atexit_cleanup():2210] got exitcode: 0
+2024-03-08 11:04:14,828 INFO    MainThread:9588 [wandb_run.py:_restore():2193] restore
+2024-03-08 11:04:14,829 INFO    MainThread:9588 [wandb_run.py:_restore():2199] restore done
