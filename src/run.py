@@ -9,7 +9,7 @@ from train import train
 config = {
     "batch_size": 16, # how many independent sequences will we process in parallel?
     "block_size": 32, # what is the maximum context length for predictions?
-    "max_iters": 300,
+    "max_iters": 1000,
     "eval_interval": 100,
     "learning_rate": 1e-3,
     "device": 'cuda' if torch.cuda.is_available() else 'cpu',
@@ -35,8 +35,8 @@ if __name__ == "__main__":
     # create tokenizer.
     chars = sorted(list(set(text))) 
     vocab_size = len(chars)
-    tokenizer = SimpleTokenizer(chars, vocab_size)
-    # tokenizer = OpenAITokenizer()
+    #tokenizer = SimpleTokenizer(chars, vocab_size)
+    tokenizer = OpenAITokenizer()
 
     # train and test splits
     dataset = ShakespareDataset(text, tokenizer, config["block_size"], config["device"])

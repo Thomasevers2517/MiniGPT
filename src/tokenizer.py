@@ -23,4 +23,4 @@ class OpenAITokenizer:
         return self.enc.encode(text)
 
     def decode(self, lst: List[int]) -> str: 
-        return ''.join([self.enc.decode(el) for el in lst])  
+        return ''.join([self.enc.decode([el]) for el in lst])  
