@@ -29,7 +29,7 @@ if __name__ == "__main__":
         wandb.init(project="mini-GPT", config=config)
     
     # read file.
-    with open('training_data.txt', 'r', encoding='utf-8') as f:
+    with open('input.txt', 'r', encoding='utf-8') as f:
         text = f.read()
 
     # create tokenizer.
@@ -39,7 +39,7 @@ if __name__ == "__main__":
     # tokenizer = OpenAITokenizer()
 
     # train and test splits
-    dataset = ShakespareDataset(text, tokenizer, config["block_size"])
+    dataset = ShakespareDataset(text, tokenizer, config["block_size"], config["device"])
     n = int(0.9*len(dataset)) # first 90% will be train, rest val
     train_dataset, test_dataset = torch.utils.data.dataset.random_split(dataset, [n, len(dataset) - n])
     train_loader = DataLoader(train_dataset, batch_size=config["batch_size"], shuffle=True)
