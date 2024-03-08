@@ -10,16 +10,16 @@ import re
 import re
 
 config = {
-    "batch_size": 16, # how many independent sequences will we process in parallel?
-    "block_size": 64, # what is the maximum context length for predictions?
-    "max_iters": 2200,
+    "batch_size": 64, # how many independent sequences will we process in parallel?
+    "block_size": 32, # what is the maximum context length for predictions?
+    "max_iters": 750,
     "eval_interval": 400,
-    "learning_rate": 1e-3,
+    "learning_rate": 20*1e-4,
     "device": 'cuda' if torch.cuda.is_available() else 'cpu',
     "eval_iters": 10,
-    "n_embd": 64, 
-    "n_head": 64,
-    "n_layer": 16,
+    "n_embd": 256, 
+    "n_head": 16,
+    "n_layer": 8,
     "dropout": 0.0,
     "wandb_logging": True
 }
@@ -34,7 +34,7 @@ if __name__ == "__main__":
         wandb.init(project="mini-GPT", config=config)
     
     # read file.
-    filename = 'WhatsApp with Silke.txt'
+    filename = 'input.txt'
     if 'whatsapp' in filename.lower():
         whatsapp = True
     else:
@@ -52,8 +52,8 @@ if __name__ == "__main__":
     # create tokenizer.
     chars = sorted(list(set(text))) 
     vocab_size = len(chars)
-    #tokenizer = SimpleTokenizer(chars, vocab_size)
-    tokenizer = OpenAITokenizer('gpt2')
+    tokenizer = SimpleTokenizer(chars, vocab_size)
+    #tokenizer = OpenAITokenizer('gpt2')
 
     # train and test splits
     dataset = ShakespareDataset(text, tokenizer, config["block_size"], config["device"])
@@ -76,5 +76,5 @@ if __name__ == "__main__":
 
     # generate new shakespare.
     context = torch.zeros((1, 1), dtype=torch.long, device=config["device"])
-    generated = m.generate(context, max_new_tokens=100)[0].tolist()
+    generated = m.generate(context, max_new_tokens=300)[0].tolist()
     print(tokenizer.decode(generated))
