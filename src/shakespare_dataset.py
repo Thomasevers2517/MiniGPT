@@ -15,3 +15,4 @@ class ShakespareDataset(Dataset):
         y = self.data[idx+1:idx+self.block_size+1]
         x, y = x.to(self.device), y.to(self.device) # move to device for speed
         return x, y
+    

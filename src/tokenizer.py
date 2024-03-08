@@ -15,8 +15,8 @@ class SimpleTokenizer:
         return ''.join([itos[i] for i in integers]) 
 
 class OpenAITokenizer:
-    def __init__(self) -> None:
-        self.enc = tiktoken.get_encoding("gpt2")
+    def __init__(self, type = "gpt2") -> None:
+        self.enc = tiktoken.get_encoding(type)
         self.vocab_size = self.enc.n_vocab
 
     def encode(self, text: str) -> List[int]:

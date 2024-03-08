@@ -5,38 +5,55 @@ from tokenizer import SimpleTokenizer, OpenAITokenizer
 from shakespare_dataset import ShakespareDataset
 from bigram_model import BigramLanguageModel
 from train import train
+import re
+import re
+import re
 
 config = {
     "batch_size": 16, # how many independent sequences will we process in parallel?
-    "block_size": 32, # what is the maximum context length for predictions?
-    "max_iters": 1000,
-    "eval_interval": 100,
+    "block_size": 64, # what is the maximum context length for predictions?
+    "max_iters": 2200,
+    "eval_interval": 400,
     "learning_rate": 1e-3,
     "device": 'cuda' if torch.cuda.is_available() else 'cpu',
-    "eval_iters": 200,
+    "eval_iters": 10,
     "n_embd": 64, 
-    "n_head": 4,
-    "n_layer": 4,
+    "n_head": 64,
+    "n_layer": 16,
     "dropout": 0.0,
-    "wandb_logging": False
+    "wandb_logging": True
 }
 
 if __name__ == "__main__":
     torch.manual_seed(1337)
     
     # create wandb project. 
+    
     if config['wandb_logging']:
+        wandb.login()
         wandb.init(project="mini-GPT", config=config)
     
     # read file.
-    with open('input.txt', 'r', encoding='utf-8') as f:
+    filename = 'WhatsApp with Silke.txt'
+    if 'whatsapp' in filename.lower():
+        whatsapp = True
+    else:
+        whatsapp = False
+        
+    with open(filename, 'r', encoding='utf-8') as f:
         text = f.read()
+        if whatsapp:
+            text = re.sub(r'\d{1,2}/\d{1,2}/\d{2}, \d{1,2}:\d{2}\s[APM]{2}\s-\s', '', text)
+            print(text)
+
+
+
 
     # create tokenizer.
     chars = sorted(list(set(text))) 
     vocab_size = len(chars)
     #tokenizer = SimpleTokenizer(chars, vocab_size)
-    tokenizer = OpenAITokenizer()
+    tokenizer = OpenAITokenizer('gpt2')
 
     # train and test splits
     dataset = ShakespareDataset(text, tokenizer, config["block_size"], config["device"])
@@ -59,5 +76,5 @@ if __name__ == "__main__":
 
     # generate new shakespare.
     context = torch.zeros((1, 1), dtype=torch.long, device=config["device"])
-    generated = m.generate(context, max_new_tokens=2000)[0].tolist()
+    generated = m.generate(context, max_new_tokens=100)[0].tolist()
     print(tokenizer.decode(generated))
