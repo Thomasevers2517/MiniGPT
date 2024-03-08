@@ -1,1 +1,2 @@
 # MiniGPT
+## Installation
