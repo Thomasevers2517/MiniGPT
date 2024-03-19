@@ -1,5 +1,0 @@
-2024-03-08 11:04:21,455 INFO    StreamThr :22932 [internal.py:wandb_internal():86] W&B internal server running at pid: 22932, started at: 2024-03-08 11:04:21.455451
-2024-03-08 11:04:21,456 DEBUG   HandlerThread:22932 [handler.py:handle_request():146] handle_request: status
-2024-03-08 11:04:21,457 INFO    WriterThread:22932 [datastore.py:open_for_write():87] open: c:\Users\thoma\OneDrive - Delft University of Technology\Documenten\UNI\Bayesian\Assignment 2\MiniGPT\wandb\run-20240308_110414-uu2r0jaf\run-uu2r0jaf.wandb
-2024-03-08 11:04:21,458 DEBUG   SenderThread:22932 [sender.py:send():378] send: header
-2024-03-08 11:04:21,458 DEBUG   SenderThread:22932 [sender.py:send():378] send: run

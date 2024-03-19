@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 from torch.nn import functional as F
+import lightning as L
 
 class Head(nn.Module):
     """ one head of self-attention """

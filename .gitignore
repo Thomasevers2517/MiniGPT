@@ -2,3 +2,5 @@
 .DS_Store
 /wandb
 whatsapp*
+lightning_logs
+gpt
