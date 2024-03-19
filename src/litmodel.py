@@ -20,8 +20,35 @@ class LitGPT(L.LightningModule):
 
         # logs average across the epoch, to the progress bar and logger.
         self.log("train_loss", loss, on_step=False, on_epoch=True, prog_bar=True, logger=True)
-        
         return loss
+    
+    def validation_step(self, batch, batch_idx) :
+        x, y = batch
+        logits = self.model(x)  
+
+        # compute loss
+        B, T, C = logits.shape
+        logits = logits.view(B*T, C)
+        targets = y.view(B*T)
+        loss = F.cross_entropy(logits, targets)
+
+        # logs average across the epoch, to the progress bar and logger.
+        self.log("validation_loss", loss, on_step=False, on_epoch=True, prog_bar=True, logger=True)
+        return loss
+    def test_step(self, batch, batch_idx) :
+        x, y = batch
+        logits = self.model(x)  
+
+        # compute loss
+        B, T, C = logits.shape
+        logits = logits.view(B*T, C)
+        targets = y.view(B*T)
+        loss = F.cross_entropy(logits, targets)
+
+        # logs average across the epoch, to the progress bar and logger.
+        self.log("test_loss", loss, on_step=False, on_epoch=True, prog_bar=True, logger=True)
+        return loss
+    
 
     def configure_optimizers(self):
         optimizer = torch.optim.AdamW(self.parameters(), lr=self.config["lr"])
