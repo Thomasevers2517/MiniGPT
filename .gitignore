@@ -1,6 +1,7 @@
 *.pyc
 .DS_Store
-/wandb
+wandb
+checkpoints
 whatsapp*
 lightning_logs
 gpt

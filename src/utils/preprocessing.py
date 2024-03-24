@@ -42,3 +42,16 @@ def split_dialogue(text: str, speakers_to_tokens: dict) -> str:
         dialogues += f"{delimiter}\n{speaker}\n{dialogue}"
     
     return dialogues
+
+
+
+# CODE TO RUN SPECIFIC TOKENS
+# add special tokens for speakers.
+# speakers = get_speakers(text)
+# tokens_to_ids, speakers_to_tokens = generate_speaker_tokens(speakers, tokenizer.vocab_size)
+# # extend tokenizer with new special tokens.
+# tokenizer.extend(tokens_to_ids)
+# # split text into dialogues with speaker tokens.
+# dialogues = split_dialogue(text, speakers_to_tokens)
+# # encode text.
+# tokens = tokenizer.encode(dialogues)

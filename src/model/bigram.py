@@ -2,20 +2,30 @@ import torch
 import torch.nn as nn
 import lightning as L
 from torch.nn import functional as F
-from transformer_block import Block
+from model.decoder import Block
 
-# super simple bigram model
+
 class BigramLanguageModel(nn.Module):
 
-    def __init__(self, vocab_size, config):
-        super().__init__()
-        self.config = config
+    def __init__(
+            self, 
+            vocab_size,
+            block_size=16, 
+            n_embd=32,
+            n_head=4,
+            n_layer=4,
+            dropout=0.0
+        ):
+        super(BigramLanguageModel, self).__init__()
+        
+        self.block_size = block_size
+        
         # each token directly reads off the logits for the next token from a lookup table
-        self.token_embedding_table = nn.Embedding(vocab_size, config["n_embd"])
-        self.position_embedding_table = nn.Embedding(config["block_size"], config["n_embd"])
-        self.blocks = nn.Sequential(*[Block(config["n_embd"], config["n_head"], config["block_size"], config["dropout"]) for _ in range(config["n_layer"])])
-        self.ln_f = nn.LayerNorm(config["n_embd"]) # final layer norm
-        self.lm_head = nn.Linear(config["n_embd"], vocab_size)
+        self.token_embedding_table = nn.Embedding(vocab_size, n_embd)
+        self.position_embedding_table = nn.Embedding(block_size, n_embd)
+        self.blocks = nn.Sequential(*[Block(n_embd, n_head, block_size, dropout) for _ in range(n_layer)])
+        self.ln_f = nn.LayerNorm(n_embd) # final layer norm
+        self.lm_head = nn.Linear(n_embd, vocab_size)
 
     def forward(self, idx):
         B, T = idx.shape
@@ -33,7 +43,7 @@ class BigramLanguageModel(nn.Module):
         # idx is (B, T) array of indices in the current context
         for _ in range(max_new_tokens):
             # crop idx to the last block_size tokens
-            idx_cond = idx[:, -self.config["block_size"]:]
+            idx_cond = idx[:, -self.block_size:]
             # get the predictions
             logits = self(idx_cond)
             # focus only on the last time step

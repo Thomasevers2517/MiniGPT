@@ -1,19 +1,6 @@
 import tiktoken
 from typing import List
-from preprocessing import get_speakers, generate_speaker_tokens
 
-class SimpleTokenizer:
-    def __init__(self, text: str) -> None:
-        self.chars = sorted(list(set(text))) 
-        self.vocab_size = len(self.chars)
-
-    def encode(self, text: str) -> List[int]:
-        stoi = { ch:i for i,ch in enumerate(self.chars) }
-        return [stoi[c] for c in text] 
-
-    def decode(self, integers: List[int]) -> str: 
-        itos = { i:ch for i,ch in enumerate(self.chars) }
-        return ''.join([itos[i] for i in integers]) 
 
 class OpenAITokenizer:
     def __init__(self, type = "gpt2") -> None:      
