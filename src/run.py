@@ -24,7 +24,7 @@ sweep_configuration = {
         "n_head": {"values": [2, 4, 8]},
         "n_layer": {"values": [2, 4, 8]},
         "dropout": {"values": [0.0]},
-        "token": {"values": [0]},
+        "token": {"values": [2]},
         "precision": {"values": [16]}, #can add 16 if BPE is fixed
         "eval_interval": {"values": [5]},
         "limit_val_batches": {"values": [128]},
@@ -53,14 +53,14 @@ def main():
     else:
         tokenizer = OpenAITokenizer(type='gpt2')
                 # add special tokens for speakers.
-        speakers = get_speakers(text)
-        tokens_to_ids, speakers_to_tokens = generate_speaker_tokens(speakers, tokenizer.vocab_size)
-        # extend tokenizer with new special tokens.
-        tokenizer.extend(tokens_to_ids)
-        # split text into dialogues with speaker tokens.
-        dialogues = split_dialogue(text, speakers_to_tokens)
-        # encode text.
-        tokens = tokenizer.encode(dialogues)
+        # speakers = get_speakers(text)
+        # tokens_to_ids, speakers_to_tokens = generate_speaker_tokens(speakers, tokenizer.vocab_size)
+        # # extend tokenizer with new special tokens.
+        # tokenizer.extend(tokens_to_ids)
+        # # split text into dialogues with speaker tokens.
+        # dialogues = split_dialogue(text, speakers_to_tokens)
+        # # encode text.
+        tokens = tokenizer.encode(text)
 
 
 
