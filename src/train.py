@@ -10,7 +10,6 @@ from model.bigram import BigramLanguageModel
 import pytorch_lightning as L
 import wandb
 from pytorch_lightning.callbacks import EarlyStopping, ModelCheckpoint
-import json
 
 sweep_configuration = {
     "method": "random", # grid, random, bayes

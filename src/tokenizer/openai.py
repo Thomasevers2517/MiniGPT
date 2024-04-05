@@ -26,7 +26,7 @@ class OpenAITokenizer:
     def encode(self, text: str) -> List[int]:
         return self.enc.encode(text, allowed_special="all")
 
-    def decode(self, tokens: List[int], special_tokens: bool) -> str: 
+    def decode(self, tokens: List[int], special_tokens: bool = True) -> str: 
         if not special_tokens:
             special_token_ids = self.enc._special_tokens.values()
             tokens = [t for t in tokens if t not in special_token_ids]
