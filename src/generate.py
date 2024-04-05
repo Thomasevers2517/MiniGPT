@@ -1,4 +1,6 @@
-# load model from checkpoint.
+"""
+This file loads a pre-trained model from a checkpoint and generates text using the model.
+"""
 from rbloom import Bloom
 import torch
 from model.litmodel import LitGPT
@@ -6,15 +8,13 @@ from tokenizer.bpe import BPETokenizer
 from tokenizer.openai import OpenAITokenizer
 from tokenizer.simple import SimpleTokenizer
 
-torch.manual_seed(100)
-
+# read data.
 filename = 'input.txt'
 with open(filename, 'r', encoding='utf-8') as f:
     text = f.read()
 
-## SIMPLE TOKENIZER
+# checkpoint and config for the best model found in the sweep for the simple tokenizer
 ckpt_path = 'checkpoints/best_simple.ckpt'
-    
 ckpt_config = {
     "batch_size": 256,
     "block_size": 64,
@@ -32,9 +32,8 @@ ckpt_config = {
     "token": "simple"
 }
 
-## OPENAI TOKENIZER 
-# ckpt_path = 'checkpoints/best_openai.ckpt'
-    
+# checkpoint and config for the best model found in the sweep for the openai tokenizer
+# ckpt_path = 'checkpoints/best_openai.ckpt' 
 # ckpt_config = {
 #     "batch_size": 256,
 #     "block_size": 16,
@@ -70,6 +69,7 @@ ckpt_gpt = LitGPT.load_from_checkpoint(
 
 model = ckpt_gpt.model
 
+# prompt model with the context "ROMEO:"
 prompt = "ROMEO:"
 context = tokenizer.encode(prompt)
 context = torch.tensor(context, dtype=torch.long).unsqueeze(0)
@@ -77,7 +77,7 @@ context = torch.tensor(context, dtype=torch.long).unsqueeze(0)
 # encode text
 tokens = tokenizer.encode(text)
 
-# extract n-grams from tokens
+# method to extract n-grams from tokens
 def extract_ngrams(tokens, n):
     ngrams = [] 
     for i in range(len(tokens)-n+1):
@@ -89,15 +89,21 @@ def extract_ngrams(tokens, n):
             ngrams.append(ngram)
     return ngrams
 
-n = 7
+n = 5
 ngrams = extract_ngrams(tokens, n)
 
 # create a bloom filter with 1% false positive rate
 bf = Bloom(expected_items=len(ngrams), false_positive_rate=0.01)
 
-# # add ngrams to bloom filter
-# for ngram in ngrams:
-#     bf.add(tokenizer.decode(ngram))
+# add ngrams to bloom filter
+for ngram in ngrams:
+    bf.add(tokenizer.decode(ngram))
 
-generated = model.generate(context, max_new_tokens=170*4, bloom_filter=bf, n=n, tokenizer=tokenizer)[0].tolist()
-print('-------\nGENERATED TEXT:\n----------\n\n', tokenizer.decode(generated))
+
+# generate text
+generated = model.generate(context, max_new_tokens=170*4)[0].tolist()
+print(tokenizer.decode(generated))
+
+# # generate text with memfree decoding
+# generated = model.generate(context, max_new_tokens=170*4, bloom_filter=bf, n=n, tokenizer=tokenizer)[0].tolist()
+# print(tokenizer.decode(generated))

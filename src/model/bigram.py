@@ -42,7 +42,7 @@ class BigramLanguageModel(nn.Module):
         logits = self.lm_head(x) # (B,T,vocab_size)        
         return logits
 
-    def generate(self, idx, max_new_tokens, bloom_filter, n, tokenizer):
+    def generate(self, idx, max_new_tokens, bloom_filter=None, n=None, tokenizer=None):
         # idx is (B, T) array of indices in the current context
         for _ in range(max_new_tokens):
             # crop idx to the last block_size tokens
@@ -57,20 +57,26 @@ class BigramLanguageModel(nn.Module):
             for _ in range(3):
                 # sample from the distribution
                 idx_next = torch.multinomial(probs, num_samples=1) # (B, 1)
-                
-                # check if the n-gram is in the bloom filter
+                # append the new token to the context
                 idx_cand = torch.cat((idx, idx_next), dim=1) # (B, T+1)
+
+                # in this case, do not do memfree decoding
+                if bloom_filter is None or n is None or tokenizer is None:    
+                    break
+                
+                # get last n-gram
                 ngram = idx_cand[:, -n:]
                 ngram = ngram[0].detach().numpy()
+                # decode the n-gram
                 ngram = tokenizer.decode(ngram)
+                # check if the n-gram is in the bloom filter
                 if ngram in bloom_filter:
-                    # print(f"Found ngram: {ngram}")
-                    # change the probability of this token
+                    # if it is, set the probability to 0
                     probs[0, idx_next[0]] = 0
-                else:
-                    # add the new token to the prefix
-                    idx = idx_cand
-                    break    
+
+            # add the new token to the prefix
+            idx = idx_cand
+
         return idx
     
     

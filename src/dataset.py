@@ -1,3 +1,6 @@
+"""
+Custom torch dataset class for Shakespeare dataset
+"""
 from torch.utils.data import Dataset
 import torch 
 

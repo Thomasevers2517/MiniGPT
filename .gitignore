@@ -2,6 +2,6 @@
 .DS_Store
 wandb
 checkpoints
-whatsapp*
 lightning_logs
-gpt
+envs
+.vscode

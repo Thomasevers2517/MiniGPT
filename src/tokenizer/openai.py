@@ -1,5 +1,5 @@
 import tiktoken
-from typing import List
+from typing import List # type: ignore
 
 
 class OpenAITokenizer:

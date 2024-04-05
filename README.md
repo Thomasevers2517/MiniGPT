@@ -7,13 +7,14 @@ First run the following command to clone this repository on your local machine.
 
 ```git clone .... ```
 
-To run this project you will need to install all of the dependancies.
-### Windows
-``` pip install -r requirements.txt ```
-### Linux
+You can install all the dependecies needed to run this project in a Conda environment as follows:
 
-### Mac
-We dont support you out of principle
+```conda env create -f environment.yml```
+
+Afterwards, you can activate the newly created environment wuth the command:
+ 
+```conda activate gpt-env```
+
 
 ## Running The Code
 

@@ -1,4 +1,4 @@
-from typing import List
+from typing import List # type: ignore
 
 class SimpleTokenizer:
     def __init__(self, text: str) -> None:

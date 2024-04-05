@@ -1,3 +1,7 @@
+"""
+This code was used to add a special token preceding each speaker in 
+the Shakespare dataset. 
+"""
 def get_speakers(text: str) -> int:
     lines = text.split('\n')
     speakers = set()
