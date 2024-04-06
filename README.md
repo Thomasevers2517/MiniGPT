@@ -5,7 +5,7 @@ This is a proper codebase implementation of a language model. Several factors of
 ## Installation
 First run the following command to clone this repository on your local machine.
 
-```git clone .... ```
+```git clone git@github.com:Thomasevers2517/MiniGPT.git ```
 
 You can install all the dependecies needed to run this project in a Conda environment as follows:
 
@@ -18,6 +18,10 @@ Afterwards, you can activate the newly created environment wuth the command:
 
 ## Running The Code
 
-To test whether your installation was successfull, go to the project directory in your terminal and run the following command.
+You can generate text from the command line using the pre-trained models as follows:
 
-``` python .... ```
+```python src/generate.py --model simple --length 30 --prompt "ROMEO:"```
+
+Or more concisely:
+
+```python src/generate.py -m openai -l 50 -p "JULIETA:"```
