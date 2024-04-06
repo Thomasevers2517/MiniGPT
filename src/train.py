@@ -69,7 +69,8 @@ def main():
     if config["token"] == "simple":
         tokenizer = SimpleTokenizer(text)
     if config["token"] == "bpe":
-        tokenizer = BPETokenizer(text)
+        tokenizer = BPETokenizer(vocab_size=500)
+        tokenizer.train(text)
     if config["token"] == "openai":
         tokenizer = OpenAITokenizer(type='gpt2')
 
