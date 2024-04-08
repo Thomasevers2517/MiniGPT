@@ -1,11 +1,12 @@
 import sys
-sys.path.insert(0, '/Users/rodrigoalvarezlucendo/Desktop/MiniGPT')
+# sys.path.insert(0, '/Users/rodrigoalvarezlucendo/Desktop/MiniGPT')
 
 import torch
 import torch.nn as nn
 import lightning as L
 from torch.nn import functional as F
-from src.model.decoder import Block
+# from src.model.decoder import Block
+from model.decoder import Block
 
 
 class BigramLanguageModel(nn.Module):

@@ -32,7 +32,7 @@ with open(filename, 'r', encoding='utf-8') as f:
 if model == 'simple':
     # checkpoint and config for the best model found 
     # in the sweep for the simple tokenizer
-    ckpt_path = 'checkpoints/best_simple.ckpt'
+    ckpt_path = 'checkpoints/checkpoints/best_simple.ckpt'
     ckpt_config = {
         "batch_size": 256,
         "block_size": 64,
@@ -53,7 +53,7 @@ if model == 'simple':
 if model == 'openai':
     # checkpoint and config for the best model found in 
     # the sweep for the openai tokenizer
-    ckpt_path = 'checkpoints/best_openai.ckpt' 
+    ckpt_path = 'checkpoints/checkpoints/best_openai.ckpt' 
     ckpt_config = {
         "batch_size": 256,
         "block_size": 16,
