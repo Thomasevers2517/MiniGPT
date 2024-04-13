@@ -13,7 +13,7 @@ parser = argparse.ArgumentParser(description='Generate text using a pre-trained 
 parser.add_argument('-m', '--model', type=str, help='Select the pre-trained model to use. Options: simple, openai.', required=True)
 parser.add_argument('-p', '--prompt', type=str, help='Text prompt to generate from. Default is ROMEO:.', required=False, default='ROMEO:')
 parser.add_argument('-l', '--length', type=int, help='Length of the generated text. Default is 170.', required=False, default=170)
-parser.add_argument('-mem', '--memfree', type=bool, help='Whether to use memfree decoding or not. Default is False.', required=False, default=False)
+parser.add_argument('-mf', '--memfree', type=bool, help='Whether to use memfree decoding or not. Default is False.', required=False, default=False)
 
 # parse arguments from command line
 args = parser.parse_args()

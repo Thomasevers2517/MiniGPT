@@ -9,47 +9,9 @@ from dataset import ShakespareDataset
 import pytorch_lightning as L
 import wandb
 from pytorch_lightning.callbacks import EarlyStopping
+from config.run import config
+from config.sweep import sweep_configuration
 
-# sweep configuration.
-sweep_configuration = {
-    "method": "random", # grid, random, bayes
-    "metric": {"name": "val_loss", "goal": "minimize"},
-    "parameters": {
-        "batch_size": {"values": [256]},
-        "limit_train_batches": {"values": [64]},
-        "max_iters": {"values": [400]},
-        "lr": {"min": 1e-5, "max": 5e-4},
-        "block_size": {"values": [4, 16, 64]},
-        "n_embd": {"values": [8, 32, 128, 512]},
-        "n_head": {"values": [2, 4, 8]},
-        "n_layer": {"values": [2, 4, 8]},
-        "dropout": {"values": [0.0]},
-        "token": {"values": ["simple"]},
-        "precision": {"values": [16]}, #can add 16 if BPE is fixed
-        "eval_interval": {"values": [5]},
-        "limit_val_batches": {"values": [128]},
-        "min_delta_lr_factor": {"values": [60]},#{"min": 1e-2, "max": 2e-2},
-    }
-}
-
-# this configuration corresponds to the best model found in the
-# sweep for the simple tokenizer.
-config = {
-    "batch_size": 256,
-    "limit_train_batches": 64,
-    "max_iters": 400,
-    "lr": 0.2110,
-    "block_size": 64,
-    "n_embd": 512,
-    "n_head": 8,
-    "n_layer": 4,
-    "dropout": 0.0,
-    "token": "simple",
-    "precision": 16, 
-    "eval_interval": 5,
-    "limit_val_batches": 128,
-    "min_delta_lr_factor": 60
-}
 
 def main():
     # set seed for reproducibility.
@@ -114,7 +76,7 @@ def main():
     
     # create trainer.
     trainer = L.Trainer(
-        accelerator="cpu", # change to gpy if you have one.
+        accelerator="gpu" if torch.cuda.is_available() else "cpu",
         limit_train_batches=config["limit_train_batches"], 
         limit_val_batches= config["limit_val_batches"],
         max_epochs=config["max_iters"], 
