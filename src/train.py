@@ -1,3 +1,5 @@
+import os
+import wandb
 import torch
 from torch.utils.data import DataLoader
 from model.litmodel import LitGPT
@@ -7,98 +9,109 @@ from tokenizer.bpe import BPETokenizer
 from lightning.pytorch.loggers import WandbLogger
 from dataset import ShakespareDataset
 import pytorch_lightning as L
-import wandb
 from pytorch_lightning.callbacks import EarlyStopping
 from config.run import config
 from config.sweep import sweep_configuration
 
-
 def main():
-    # set seed for reproducibility.
+    # Set precision and seed
     torch.manual_seed(1337)
 
-    # log to wandb.
-    wandb.init(project="Threshold GPT")
-    wandb_logger = WandbLogger(log_model=True)
-    config = wandb.config
-    # read file.
+    # Initialize WandbLogger without manual wandb.init()
+    wandb_logger = WandbLogger(
+        log_model=True,
+        project="Threshold GPT",
+        entity="thomasevers9",
+    )
+
+    # Read the input text file
     filename = 'input.txt'
     with open(filename, 'r', encoding='utf-8') as f:
         text = f.read()
 
-    # determine tokenizer.
+    # Determine tokenizer based on config
     if config["token"] == "simple":
         tokenizer = SimpleTokenizer(text)
-    if config["token"] == "bpe":
+    elif config["token"] == "bpe":
         tokenizer = BPETokenizer(vocab_size=500)
         tokenizer.train(text)
-    if config["token"] == "openai":
+    elif config["token"] == "openai":
         tokenizer = OpenAITokenizer(type='gpt2')
+    else:
+        raise ValueError(f"Unknown tokenizer type: {config['token']}")
 
-    # encode text.
+    # Encode text
     tokens = tokenizer.encode(text)
 
-    # train val test split.
+    # Split dataset into train, validation, and test
     dataset = ShakespareDataset(tokens, config["block_size"])
-    n = int(0.9*len(dataset)) # first 90% will be train, rest val and test 50/50
+    n = int(0.9 * len(dataset))
+    val_size = int(0.05 * len(dataset))
+    test_size = len(dataset) - n - val_size
     train_dataset, val_dataset, test_dataset = torch.utils.data.random_split(
-        dataset, [n, int(0.05*len(dataset)), len(dataset) - n - int(0.05*len(dataset))]
+        dataset, [n, val_size, test_size]
     )
-    
-    # create dataloaders.
+
+    # Create dataloaders
     train_loader = DataLoader(
-        train_dataset, 
-        batch_size=config["batch_size"], 
-        num_workers=7, 
-        pin_memory=True, 
-        persistent_workers=True, 
-        shuffle=True 
+        train_dataset,
+        batch_size=config["batch_size"],
+        num_workers=7,
+        pin_memory=True,
+        persistent_workers=True,
+        shuffle=True
     )
 
     val_loader = DataLoader(
-        val_dataset, 
-        batch_size=config["batch_size"], 
-        shuffle=False, 
-        num_workers=7, 
+        val_dataset,
+        batch_size=config["batch_size"],
+        shuffle=False,
+        num_workers=7,
         persistent_workers=True
     )
 
     test_loader = DataLoader(
-        test_dataset, 
-        batch_size=config["batch_size"], 
-        shuffle=False, 
+        test_dataset,
+        batch_size=config["batch_size"],
+        shuffle=False,
         num_workers=7
     )
 
-    # create model.
+    # Create the model
     gpt = LitGPT(vocab_size=tokenizer.vocab_size, **config)
-    
-    # create trainer.
+
+    # Create the trainer
     trainer = L.Trainer(
-        accelerator="gpu" if torch.cuda.is_available() else "cpu",
-        limit_train_batches=config["limit_train_batches"], 
-        limit_val_batches= config["limit_val_batches"],
-        max_epochs=config["max_iters"], 
-        logger=wandb_logger, 
-        precision=config["precision"], 
-        check_val_every_n_epoch= config["eval_interval"],
+        # devices=[1,2,5],
+        accelerator="gpu",
+        strategy="ddp",  # Use Distributed Data Parallel for multi-GPU
+        limit_train_batches=config["limit_train_batches"],
+        limit_val_batches=config["limit_val_batches"],
+        max_epochs=config["max_iters"],
+        logger=wandb_logger,
+        precision=config["precision"],  # Updated to recommended precision
+        check_val_every_n_epoch=config["eval_interval"],
         callbacks=[
-            EarlyStopping(monitor="validation_loss", min_delta=config["lr"]*config["min_delta_lr_factor"], patience=2)
+            EarlyStopping(
+                monitor="validation_loss",
+                min_delta=config["lr"] * config["min_delta_lr_factor"],
+                patience=2
+            )
         ]
     )
 
-    # train model.
+    # Train the model
     trainer.fit(model=gpt, train_dataloaders=train_loader, val_dataloaders=val_loader)
-    # test model.
+    
+    # Test the model
     trainer.test(model=gpt, dataloaders=test_loader)
-        
 
 if __name__ == "__main__":
-    # run main with default configuration.
-    # main()
-    
-    # 1: Initialize wandb
-    wandb.login()    
-    # 3: Start the sweep
-    sweep_id = wandb.sweep(sweep=sweep_configuration, project="Threshold GPT")
+    # Initialize the sweep with the correct project and entity
+    sweep_id = wandb.sweep(
+        sweep=sweep_configuration,
+        project="Threshold GPT",
+        entity="thomasevers9"  # Use your W&B username or a valid team name
+    )
+    # Start the sweep agent
     wandb.agent(sweep_id, function=main, count=100)
