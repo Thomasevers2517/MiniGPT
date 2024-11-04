@@ -18,7 +18,7 @@ def main():
     torch.manual_seed(1337)
 
     # log to wandb.
-    wandb.init(project="gpt", config=config)
+    wandb.init(project="Threshold GPT", config=config)
     wandb_logger = WandbLogger(log_model=True)
     # config = wandb.config     # # uncomment this line if using sweep.
     
@@ -96,11 +96,10 @@ def main():
 
 if __name__ == "__main__":
     # run main with default configuration.
-    main()
-
-    # Do automatic sweep.
-    # # 1: Initialize wandb
-    # wandb.login()    
-    # # 3: Start the sweep
-    # sweep_id = wandb.sweep(sweep=sweep_configuration, project="gpt")
-    # wandb.agent(sweep_id, function=main, count=200)
+    # main()
+    
+    # 1: Initialize wandb
+    wandb.login()    
+    # 3: Start the sweep
+    sweep_id = wandb.sweep(sweep=sweep_configuration, project="gpt")
+    wandb.agent(sweep_id, function=main, count=100)

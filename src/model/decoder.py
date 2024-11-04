@@ -2,6 +2,21 @@ import torch
 import torch.nn as nn
 from torch.nn import functional as F
 
+class ReLUWithSTE(torch.autograd.Function):
+    @staticmethod
+    def forward(ctx, input):
+        # Apply ReLU in the forward pass
+        ctx.save_for_backward(input)
+        return torch.where(input > 0, input, torch.zeros_like(input))  # ReLU: max(0, x)
+
+    @staticmethod
+    def backward(ctx, grad_output):
+        # Straight-Through Estimator for the gradient
+        input, = ctx.saved_tensors
+        grad_input = grad_output.clone()
+        grad_input[input <= 0] = 0  # STE: passes gradient only for input > 0
+        return grad_input
+    
 class Head(nn.Module):
     """ one head of self-attention """
 
@@ -14,6 +29,7 @@ class Head(nn.Module):
 
         self.dropout = nn.Dropout(dropout)
 
+    
     def forward(self, x):
         B,T,C = x.shape
         k = self.key(x)   # (B,T,C)
@@ -22,6 +38,7 @@ class Head(nn.Module):
         wei = q @ k.transpose(-2,-1) * C**-0.5 # (B, T, C) @ (B, C, T) -> (B, T, T)
         wei = wei.masked_fill(self.tril[:T, :T] == 0, float('-inf')) # (B, T, T)
         wei = F.softmax(wei, dim=-1) # (B, T, T)
+        # wei = ReLUWithSTE.apply( wei - 0.1 ) # (B, T, T)
         wei = self.dropout(wei)
         # perform the weighted aggregation of the values
         v = self.value(x) # (B,T,C)
