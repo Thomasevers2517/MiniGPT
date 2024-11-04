@@ -18,10 +18,9 @@ def main():
     torch.manual_seed(1337)
 
     # log to wandb.
-    wandb.init(project="Threshold GPT", config=config)
+    wandb.init(project="Threshold GPT")
     wandb_logger = WandbLogger(log_model=True)
-    # config = wandb.config     # # uncomment this line if using sweep.
-    
+    config = wandb.config
     # read file.
     filename = 'input.txt'
     with open(filename, 'r', encoding='utf-8') as f:
@@ -101,5 +100,5 @@ if __name__ == "__main__":
     # 1: Initialize wandb
     wandb.login()    
     # 3: Start the sweep
-    sweep_id = wandb.sweep(sweep=sweep_configuration, project="gpt")
+    sweep_id = wandb.sweep(sweep=sweep_configuration, project="Threshold GPT")
     wandb.agent(sweep_id, function=main, count=100)

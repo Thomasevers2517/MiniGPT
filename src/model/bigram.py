@@ -14,7 +14,8 @@ class BigramLanguageModel(nn.Module):
             n_embd=32,
             n_head=4,
             n_layer=4,
-            dropout=0.0
+            dropout=0.0,
+            T_threshold=0.0
         ):
         super(BigramLanguageModel, self).__init__()
         
@@ -23,7 +24,7 @@ class BigramLanguageModel(nn.Module):
         # each token directly reads off the logits for the next token from a lookup table
         self.token_embedding_table = nn.Embedding(vocab_size, n_embd)
         self.position_embedding_table = nn.Embedding(block_size, n_embd)
-        self.blocks = nn.Sequential(*[Block(n_embd, n_head, block_size, dropout) for _ in range(n_layer)])
+        self.blocks = nn.Sequential(*[Block(n_embd, n_head, block_size, dropout, T_threshold) for _ in range(n_layer)])
         self.ln_f = nn.LayerNorm(n_embd) # final layer norm
         self.lm_head = nn.Linear(n_embd, vocab_size)
 

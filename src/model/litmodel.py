@@ -22,7 +22,8 @@ class LitGPT(L.LightningModule):
         precision=16, 
         eval_interval=5, 
         limit_val_batches=128, 
-        min_delta_lr_factor=60
+        min_delta_lr_factor=60,
+        T_threshold = 0.0
     ):
         super(LitGPT, self).__init__()
         
@@ -35,7 +36,8 @@ class LitGPT(L.LightningModule):
             n_embd=n_embd,
             n_head=n_head,
             n_layer=n_layer,
-            dropout=dropout
+            dropout=dropout,
+            T_threshold=T_threshold
         )
 
     def _compute_loss(self, batch):
