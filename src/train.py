@@ -86,18 +86,20 @@ test_loader = DataLoader(
 gpt = LitGPT(vocab_size=tokenizer.vocab_size, **config)
 
 
-profiler = PyTorchProfiler(
-activities=[
-    torch.profiler.ProfilerActivity.CPU,
-    torch.profiler.ProfilerActivity.CUDA,
-],
-record_shapes=True,
-with_stack=True,
-with_flops=True,  # Enable FLOPs counting
-profile_memory=True,
-schedule=torch.profiler.schedule(wait=1, warmup=1, active=2, repeat=1),
-on_trace_ready=torch.profiler.tensorboard_trace_handler('./lightning_logs')
-)
+# profiler = PyTorchProfiler(
+# activities=[
+#     torch.profiler.ProfilerActivity.CPU,
+#     torch.profiler.ProfilerActivity.CUDA,
+# ],
+# record_shapes=True,
+# with_stack=True,
+# with_flops=True,  # Enable FLOPs counting
+# profile_memory=True,
+# schedule=torch.profiler.schedule(wait=1, warmup=1, active=2, repeat=1),
+# on_trace_ready=torch.profiler.tensorboard_trace_handler('./lightning_logs')
+# )
+
+
 
 # Create the trainer
 trainer = L.Trainer(
