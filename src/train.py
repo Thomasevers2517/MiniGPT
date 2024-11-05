@@ -84,7 +84,6 @@ def main():
     trainer = L.Trainer(
         # devices=[1,2,5],
         accelerator="gpu",
-        strategy="ddp",  # Use Distributed Data Parallel for multi-GPU
         limit_train_batches=config["limit_train_batches"],
         limit_val_batches=config["limit_val_batches"],
         max_epochs=config["max_iters"],
