@@ -10,108 +10,119 @@ from lightning.pytorch.loggers import WandbLogger
 from dataset import ShakespareDataset
 import pytorch_lightning as L
 from pytorch_lightning.callbacks import EarlyStopping
-from config.run import config
-from config.sweep import sweep_configuration
+from pytorch_lightning.profilers import PyTorchProfiler
 
-def main():
-    # Set precision and seed
-    torch.manual_seed(1337)
 
-    # Initialize WandbLogger without manual wandb.init()
-    wandb_logger = WandbLogger(
-        log_model=True,
-        project="Threshold GPT",
-        entity="thomasevers9",
-    )
 
-    # Read the input text file
-    filename = 'input.txt'
-    with open(filename, 'r', encoding='utf-8') as f:
-        text = f.read()
+# Set precision and seed
+L.seed_everything(42)
+torch.set_float32_matmul_precision('medium')
+wandb.init()
+wandb_logger = WandbLogger(
+    log_model=True,
+)
 
-    # Determine tokenizer based on config
-    if config["token"] == "simple":
-        tokenizer = SimpleTokenizer(text)
-    elif config["token"] == "bpe":
-        tokenizer = BPETokenizer(vocab_size=500)
-        tokenizer.train(text)
-    elif config["token"] == "openai":
-        tokenizer = OpenAITokenizer(type='gpt2')
-    else:
-        raise ValueError(f"Unknown tokenizer type: {config['token']}")
+# Initialize wandb
 
-    # Encode text
-    tokens = tokenizer.encode(text)
+config = wandb.config
 
-    # Split dataset into train, validation, and test
-    dataset = ShakespareDataset(tokens, config["block_size"])
-    n = int(0.9 * len(dataset))
-    val_size = int(0.05 * len(dataset))
-    test_size = len(dataset) - n - val_size
-    train_dataset, val_dataset, test_dataset = torch.utils.data.random_split(
-        dataset, [n, val_size, test_size]
-    )
+                
 
-    # Create dataloaders
-    train_loader = DataLoader(
-        train_dataset,
-        batch_size=config["batch_size"],
-        num_workers=7,
-        pin_memory=True,
-        persistent_workers=True,
-        shuffle=True
-    )
+# Read the input text file
+filename = 'input.txt'
+with open(filename, 'r', encoding='utf-8') as f:
+    text = f.read()
 
-    val_loader = DataLoader(
-        val_dataset,
-        batch_size=config["batch_size"],
-        shuffle=False,
-        num_workers=7,
-        persistent_workers=True
-    )
 
-    test_loader = DataLoader(
-        test_dataset,
-        batch_size=config["batch_size"],
-        shuffle=False,
-        num_workers=7
-    )
+# Determine tokenizer based on config
+if config["token"] == "simple":
+    tokenizer = SimpleTokenizer(text)
+elif config["token"] == "bpe":
+    tokenizer = BPETokenizer(vocab_size=500)
+    tokenizer.train(text)
+elif config["token"] == "openai":
+    tokenizer = OpenAITokenizer(type='gpt2')
+else:
+    raise ValueError(f"Unknown tokenizer type: {config['token']}")
 
-    # Create the model
-    gpt = LitGPT(vocab_size=tokenizer.vocab_size, **config)
+# Encode text
+tokens = tokenizer.encode(text)
 
-    # Create the trainer
-    trainer = L.Trainer(
-        # devices=[1,2,5],
-        accelerator="gpu",
-        strategy="ddp",  # Use Distributed Data Parallel for multi-GPU
-        limit_train_batches=config["limit_train_batches"],
-        limit_val_batches=config["limit_val_batches"],
-        max_epochs=config["max_iters"],
-        logger=wandb_logger,
-        precision=config["precision"],  # Updated to recommended precision
-        check_val_every_n_epoch=config["eval_interval"],
-        callbacks=[
-            EarlyStopping(
-                monitor="validation_loss",
-                min_delta=config["lr"] * config["min_delta_lr_factor"],
-                patience=2
-            )
-        ]
-    )
+# Split dataset into train, validation, and test
+dataset = ShakespareDataset(tokens, config["block_size"])
+n = int(0.9 * len(dataset))
+val_size = int(0.05 * len(dataset))
+test_size = len(dataset) - n - val_size
+train_dataset, val_dataset, test_dataset = torch.utils.data.random_split(
+    dataset, [n, val_size, test_size]
+)
 
-    # Train the model
-    trainer.fit(model=gpt, train_dataloaders=train_loader, val_dataloaders=val_loader)
-    
-    # Test the model
-    trainer.test(model=gpt, dataloaders=test_loader)
+# Create dataloaders
+train_loader = DataLoader(
+    train_dataset,
+    batch_size=config["batch_size"],
+    num_workers=64,
+    pin_memory=True,
+    persistent_workers=True,
+    shuffle=True
+)
 
-if __name__ == "__main__":
-    # Initialize the sweep with the correct project and entity
-    sweep_id = wandb.sweep(
-        sweep=sweep_configuration,
-        project="Threshold GPT",
-        entity="thomasevers9"  # Use your W&B username or a valid team name
-    )
-    # Start the sweep agent
-    wandb.agent(sweep_id, function=main, count=100)
+val_loader = DataLoader(
+    val_dataset,
+    batch_size=config["batch_size"],
+    shuffle=False,
+    num_workers=64,
+    persistent_workers=True
+)
+
+test_loader = DataLoader(
+    test_dataset,
+    batch_size=config["batch_size"],
+    shuffle=False,
+    num_workers=8
+)
+
+# Create the model
+gpt = LitGPT(vocab_size=tokenizer.vocab_size, **config)
+
+
+profiler = PyTorchProfiler(
+activities=[
+    torch.profiler.ProfilerActivity.CPU,
+    torch.profiler.ProfilerActivity.CUDA,
+],
+record_shapes=True,
+with_stack=True,
+with_flops=True,  # Enable FLOPs counting
+profile_memory=True,
+schedule=torch.profiler.schedule(wait=1, warmup=1, active=2, repeat=1),
+on_trace_ready=torch.profiler.tensorboard_trace_handler('./lightning_logs')
+)
+
+# Create the trainer
+trainer = L.Trainer(
+    accelerator="gpu",
+    limit_train_batches=config["limit_train_batches"],
+    limit_val_batches=config["limit_val_batches"],
+    max_epochs=config["max_iters"],
+    logger=wandb_logger,
+    precision=config["precision"],  # Updated to recommended precision
+    check_val_every_n_epoch=config["eval_interval"],
+    callbacks=[
+        EarlyStopping(
+            monitor="validation_loss",
+            min_delta=config["lr"] * config["min_delta_lr_factor"],
+            patience=2
+        )
+    ],
+    profiler=profiler
+)
+
+# Train the model
+trainer.fit(model=gpt, train_dataloaders=train_loader, val_dataloaders=val_loader)
+
+# Test the model
+trainer.test(model=gpt, dataloaders=test_loader)
+
+wandb.finish()
+

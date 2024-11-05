@@ -1,0 +1,38 @@
+program: src/train.py
+method: random  # Options: grid, random, bayes
+metric:
+  name: val_loss
+  goal: minimize
+project: "Threshold GPT"        # Specify your W&B project name
+entity: "thomasevers9"          # Specify your W&B username or team name
+parameters:
+  batch_size:
+    values: [128, 4096]             # 4 * 16384 = 65536
+  limit_train_batches:
+    values: [64]
+  max_iters:
+    values: [1400]
+  lr:
+    values: [1e-3, 1e-4, 1e-5]
+  block_size:
+    values: [32, 64]
+  n_embd:
+    values: [64, 256]
+  n_head:
+    values: [8]
+  n_layer:
+    values: [4]
+  dropout:
+    values: [0, 0.4]
+  token:
+    values: ["simple"]
+  precision:
+    values: ["16-mixed"]         # Can add "16" if BPE is fixed
+  eval_interval:
+    values: [5]
+  limit_val_batches:
+    values: [128]
+  min_delta_lr_factor:
+    values: [60]
+  T_threshold:
+    values: [0, 0.01]
