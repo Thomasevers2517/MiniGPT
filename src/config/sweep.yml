@@ -7,7 +7,7 @@ project: "Threshold GPT"        # Specify your W&B project name
 entity: "thomasevers9"          # Specify your W&B username or team name
 parameters:
   batch_size:
-    values: [128, 2048]             # 4 * 16384 = 65536
+    values: [512]             # 4 * 16384 = 65536
   limit_train_batches:
     values: [64]
   max_iters:
@@ -15,9 +15,9 @@ parameters:
   lr:
     values: [1e-4, 5e-4]
   block_size:
-    values: [64, 128]
+    values: [64, 128, 256]
   n_embd:
-    values: [256, 512]
+    values: [256, 512, 1024]
   n_head:
     values: [8, 16]
   n_layer:
@@ -33,6 +33,6 @@ parameters:
   limit_val_batches:
     values: [128]
   min_delta_lr_factor:
-    values: [60]
+    values: [20]
   T_threshold:
-    values: [0, 0.01, 0.05]
+    values: [0, 0.01, 0.025]
