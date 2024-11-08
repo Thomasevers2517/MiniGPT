@@ -20,6 +20,9 @@ torch.set_float32_matmul_precision('medium')
 wandb.init()
 wandb_logger = WandbLogger(
     log_model=True,
+    save_dir="/space/thomasevers/Threshold_logs"
+    
+    
 )
 
 # Initialize wandb
@@ -116,8 +119,7 @@ trainer = L.Trainer(
             min_delta=config["lr"] * config["min_delta_lr_factor"],
             patience=2
         )
-    ],
-    profiler=profiler
+    ]
 )
 
 # Train the model

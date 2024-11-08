@@ -13,15 +13,15 @@ parameters:
   max_iters:
     values: [1400]
   lr:
-    values: [1e-3, 1e-4, 1e-5]
+    values: [1e-4, 5e-4]
   block_size:
-    values: [32, 64]
+    values: [64, 128]
   n_embd:
-    values: [64, 256]
+    values: [256, 512]
   n_head:
-    values: [8]
+    values: [8, 16]
   n_layer:
-    values: [4,8]
+    values: [8]
   dropout:
     values: [0, 0.4]
   token:
@@ -35,4 +35,4 @@ parameters:
   min_delta_lr_factor:
     values: [60]
   T_threshold:
-    values: [0, 0.01]
+    values: [0, 0.01, 0.05]
