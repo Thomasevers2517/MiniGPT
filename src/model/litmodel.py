@@ -37,7 +37,8 @@ class LitGPT(L.LightningModule):
             n_head=n_head,
             n_layer=n_layer,
             dropout=dropout,
-            T_threshold=T_threshold
+            T_threshold=T_threshold,
+            logger=self.logger
         )
 
     def _compute_loss(self, batch):
@@ -68,4 +69,5 @@ class LitGPT(L.LightningModule):
 
     def configure_optimizers(self):
         optimizer = torch.optim.AdamW(self.parameters(), lr=self.hparams.lr)
-        return optimizer
+        lr_scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=self.hparams.max_iters)
+        return {"optimizer": optimizer, "lr_scheduler": lr_scheduler}
