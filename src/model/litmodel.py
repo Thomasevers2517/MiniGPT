@@ -37,7 +37,8 @@ class LitGPT(L.LightningModule):
             n_head=n_head,
             n_layer=n_layer,
             dropout=dropout,
-            T_threshold=T_threshold
+            T_threshold=T_threshold,
+            logger=self.logger
         )
 
     def _compute_loss(self, batch):
