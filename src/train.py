@@ -20,6 +20,7 @@ if __name__ == "__main__":
     wandb.init()
     wandb_logger = WandbLogger(
         log_model=True,
+        save_dir = "/space2/thomasevers/Thresholding_test/Threshold GPT"
     )
 
     # Initialize wandb
@@ -53,15 +54,18 @@ if __name__ == "__main__":
     n = int(0.9 * len(dataset))
     val_size = int(0.05 * len(dataset))
     test_size = len(dataset) - n - val_size
-    train_dataset, val_dataset, test_dataset = torch.utils.data.random_split(
-        dataset, [n, val_size, test_size]
-    )
+    # train_dataset, val_dataset, test_dataset = torch.utils.data.random_split(
+    #     dataset, [n, val_size, test_size]
+    # )
+    train_dataset = torch.utils.data.Subset(dataset, range(0, n))
+    val_dataset = torch.utils.data.Subset(dataset, range(n+config["block_size"], n+val_size+config["block_size"]))
+    test_dataset = torch.utils.data.Subset(dataset, range(n+val_size+config["block_size"], len(dataset)))
 
     # Create dataloaders
     train_loader = DataLoader(
         train_dataset,
         batch_size=config["batch_size"],
-        num_workers=8,
+        num_workers=32,
         pin_memory=True,
         persistent_workers=True,
         shuffle=True
@@ -71,7 +75,7 @@ if __name__ == "__main__":
         val_dataset,
         batch_size=config["batch_size"],
         shuffle=False,
-        num_workers=8,
+        num_workers=32,
         persistent_workers=True
     )
 
@@ -110,13 +114,13 @@ if __name__ == "__main__":
         logger=wandb_logger,
         precision=config["precision"],  # Updated to recommended precision
         check_val_every_n_epoch=config["eval_interval"],
-        callbacks=[
-            EarlyStopping(
-                monitor="validation_loss",
-                min_delta=config["lr"] * config["min_delta_lr_factor"],
-                patience=2
-            )
-        ],
+        # callbacks=[
+        #     EarlyStopping(
+        #         monitor="validation_loss",
+        #         min_delta=config["lr"] * config["min_delta_lr_factor"],
+        #         patience=2
+        #     )
+        # ],
 
     )
 

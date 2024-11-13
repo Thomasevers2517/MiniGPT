@@ -20,9 +20,8 @@ class ReLUWithSTE(torch.autograd.Function):
 class Head(nn.Module):
     """ one head of self-attention """
 
-    def __init__(self, head_size, n_embd, block_size, dropout, T_threshold, logger):
+    def __init__(self, head_size, n_embd, block_size, dropout, T_threshold):
         super().__init__()
-        self.logger = logger
         self.key = nn.Linear(n_embd, head_size, bias=False)
         self.query = nn.Linear(n_embd, head_size, bias=False)
         self.value = nn.Linear(n_embd, head_size, bias=False)
@@ -40,7 +39,6 @@ class Head(nn.Module):
         wei = wei.masked_fill(self.tril[:T, :T] == 0, float('-inf')) # (B, T, T)
         wei = F.softmax(wei, dim=-1) # (B, T, T)
         wei = ReLUWithSTE.apply( wei - self.T_threshold ) # (B, T, T)
-        self.logger.info(f"attention scores: {wei}")
         wei = self.dropout(wei)
         # perform the weighted aggregation of the values
         v = self.value(x) # (B,T,C)
@@ -50,10 +48,10 @@ class Head(nn.Module):
 class MultiHeadAttention(nn.Module):
     """ multiple heads of self-attention in parallel """
 
-    def __init__(self, num_heads, head_size, n_embd, block_size, dropout, T_threshold, loggger):
+    def __init__(self, num_heads, head_size, n_embd, block_size, dropout, T_threshold):
         super().__init__()
-        self.logger = loggger
-        self.heads = nn.ModuleList([Head(head_size, n_embd, block_size, dropout, T_threshold, self.logger) for _ in range(num_heads)])
+        
+        self.heads = nn.ModuleList([Head(head_size, n_embd, block_size, dropout, T_threshold) for _ in range(num_heads)])
         self.proj = nn.Linear(n_embd, n_embd)
         self.dropout = nn.Dropout(dropout)
 
@@ -80,12 +78,11 @@ class FeedFoward(nn.Module):
 class Block(nn.Module):
     """ Transformer block: communication followed by computation """
 
-    def __init__(self, n_embd, n_head, block_size, dropout, T_threshold, loggger):
+    def __init__(self, n_embd, n_head, block_size, dropout, T_threshold):
         # n_embd: embedding dimension, n_head: the number of heads we'd like
         super().__init__()
-        self.logger = loggger
         head_size = n_embd // n_head
-        self.sa = MultiHeadAttention(n_head, head_size, n_embd, block_size, dropout, T_threshold, loggger)
+        self.sa = MultiHeadAttention(n_head, head_size, n_embd, block_size, dropout, T_threshold)
         self.ffwd = FeedFoward(n_embd, dropout)
         self.ln1 = nn.LayerNorm(n_embd)
         self.ln2 = nn.LayerNorm(n_embd)

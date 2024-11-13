@@ -1,0 +1,4 @@
+wandb: Starting wandb agent 🕵️
+wandb: ERROR Find detailed error logs at: /users/thomasevers/users/thomas/Extra Project/Threshold GPT/MiniGPT/wandb/debug-cli.thomasevers.log
+Error: Sweep thomasevers9/Thresh
+CUDA_VISIBLE_DEVICES=3 nohup wandb agent thomasevers9/Thresh not found
