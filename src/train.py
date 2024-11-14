@@ -20,7 +20,7 @@ if __name__ == "__main__":
     wandb.init()
     wandb_logger = WandbLogger(
         log_model=True,
-        save_dir = "/space2/thomasevers/Thresholding_test/Threshold GPT"
+        save_dir = "/bulk/thomasevers/Threshold_former"
     )
 
     # Initialize wandb
